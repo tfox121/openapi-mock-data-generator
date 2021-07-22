@@ -1,0 +1,188 @@
+openapi: 3.0.3
+info:
+  title: Test API
+  version: '1.0'
+  description: Test API
+  contact:
+    name: Tom Fox
+paths:
+  /stations:
+    get:
+      summary: Retrieves a list of stations
+      tags: []
+      operationId: get-stations
+      description: Gets all of the stations for an authenticated user.
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipleStationResponse'
+  '/stations/{stationId}':
+    parameters:
+      - $ref: '#/components/parameters/stationId'
+    get:
+      summary: Retrieve an existing station
+      tags: []
+      operationId: get-station
+      description: Get a station for an authenticated user
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleStationResponse'
+    patch:
+      summary: Modify an existing station
+      tags: []
+      operationId: patch-station
+      description: Update a user's Station
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleStationResponse'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Station'
+components:
+  responses:
+    MultipleStationResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Station'
+          examples:
+            example-1:
+              value:
+                - id: 778788e9-a5f5-4f34-b6be-eacd3d79a70e
+                  name: Example Station
+                  logo_url: 'https://example.com/logo.png'
+                  description: 'Donec efficitur sit amet metus nec sodales. Curabitur pharetra magna sit amet metus pretium, id mollis quam ullamcorper. Morbi ullamcorper sollicitudin enim eget ornare.'
+                  website: 'https://example.com'
+                  location: Manchester
+                  genre: Rock
+                  keywords: 'rock,pop,upbeat'
+                  streaming_urls:
+                    - bitrate: 128
+                      url: 'https://listen.radio/example.m3u'
+                  accent_colour:
+                    r: '255'
+                    g: '255'
+                    b: '255'
+                    a: '1'
+                  contact_email: email@example.com
+                  privacy_policy: 'http://example.com/privacy'
+    SingleStationResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/Station'
+  parameters:
+    stationId:
+      name: stationId
+      in: path
+      required: true
+      description: Station ID
+      example: f8cfaca6-98b5-41ab-9105-2e2aa5d53589
+      schema:
+        type: string
+        format: uuid
+        example: f8cfaca6-98b5-41ab-9105-2e2aa5d53589
+  schemas:
+    Station:
+      type: object
+      description: Station schema for project
+      properties:
+        id:
+          type: string
+          example: 778788e9-a5f5-4f34-b6be-eacd3d79a70e
+          x-faker: datatype.uuid
+        name:
+          type: string
+          example: Example Station
+          x-faker: lorem.word
+        logo_url:
+          type: string
+          example: 'https://example.com/logo.png'
+          format: uri
+          x-faker: image.imageUrl
+          nullable: true
+        description:
+          type: string
+          example: 'Donec efficitur sit amet metus nec sodales. Curabitur pharetra magna sit amet metus pretium, id mollis quam ullamcorper. Morbi ullamcorper sollicitudin enim eget ornare.'
+          x-faker: lorem.paragraph
+          nullable: true
+        website:
+          type: string
+          format: uri
+          example: 'https://example.com'
+          nullable: true
+        location:
+          type: string
+          example: Manchester
+          x-faker: address.country
+          nullable: true
+        genre:
+          type: string
+          example: Rock
+          x-faker: music.genre
+          nullable: true
+        keywords:
+          type: string
+          example: 'rock,pop,upbeat'
+          pattern: '^([\da-zA-Z-]{3,20},){1,9}[\da-zA-Z-]{3,20}|[\da-zA-Z-]{3,20}$'
+          nullable: true
+        streaming_urls:
+          type: array
+          uniqueItems: true
+          maxItems: 5
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              bitrate:
+                type: integer
+                example: 128
+                minimum: 0
+                maximum: 320
+              url:
+                type: string
+                format: uri
+                example: 'https://listen.radio/example.m3u'
+        accent_colour:
+          type: object
+          additionalProperties: false
+          nullable: true
+          properties:
+            r:
+              type: string
+              pattern: '^(\d|[1-9]\d|(1\d\d|2([0-4]\d|5[0-5])))$'
+              example: '255'
+            g:
+              type: string
+              pattern: '^(\d|[1-9]\d|(1\d\d|2([0-4]\d|5[0-5])))$'
+              example: '255'
+            b:
+              type: string
+              pattern: '^(\d|[1-9]\d|(1\d\d|2([0-4]\d|5[0-5])))$'
+              example: '255'
+            a:
+              type: string
+              pattern: '^(1|0\.\d+)$'
+              example: '1'
+        contact_email:
+          type: string
+          format: email
+          example: email@example.com
+          nullable: true
+        privacy_policy:
+          type: string
+          format: uri
+          example: 'http://example.com/privacy'
+          nullable: true
+      required:
+        - id
+        - name
+servers:
+  - url: 'http://localhost:3000'
